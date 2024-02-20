@@ -221,8 +221,8 @@ Comment on the results obtained.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+p = 1-(99/100)^100
+
 ```
 
 Your answer:
@@ -230,7 +230,7 @@ Your answer:
 ~~~
 Please write your answer in full sentences.
 
-
+The outcome closely corresponds to the theoretical probability of an observation being selected in a bootstrap sample, which stands at 0.634.
 ~~~
 
 
@@ -252,11 +252,12 @@ used to generate the data in equation form.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+n <- 100
+p <- 1
 ```
 
 Your answer:
+$$y = x - 2x^{2} + ϵ$$
 
 ~~~
 Please write your answer in full sentences.
@@ -473,8 +474,9 @@ In Chapter 4, we used logistic regression to predict the probability of default 
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+library(ISLR2)
+model1 <- glm(default ~ income + balance, data = Default, family = "binomial")
+summary(model1)
 ```
 
 Your answer:
@@ -493,8 +495,11 @@ i. Split the sample set into a training set and a validation set.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+set.seed(999)
+n <- nrow(Default)
+index <- sample(1:n, size = 0.7 * n)  
+training_set <- Default[index, ]
+validation_set <- Default[-index, ]
 ```
 
 Your answer:
@@ -510,8 +515,8 @@ ii. Fit a multiple logistic regression model using only the training observation
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+training_model <- glm(default ~ income + balance, data = training_set, family = "binomial")
+summary(training_model)
 ```
 
 Your answer:
@@ -529,8 +534,10 @@ iii. Obtain a prediction of default status for each individual in the validation
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+validation_probs <- predict(training_model, newdata = validation_set, type = "response")
+validation_predictions <- ifelse(validation_probs > 0.5, "Yes", "No")
+validation_results <- data.frame(Actual = validation_set$default, Predicted = validation_predictions)
+
 ```
 
 Your answer:
@@ -547,8 +554,8 @@ iv. Compute the validation set error, which is the fraction of the observations 
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+validation_error <- mean(validation_results$Actual != validation_results$Predicted)
+validation_error
 ```
 
 Your answer:
@@ -566,8 +573,36 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+set.seed(999)
+n <- nrow(Default)
+index1 <- sample(1:n, size = 0.75 * n)  
+training_set1 <- Default[index1, ]
+validation_set1 <- Default[-index1, ]
+training_model1 <- glm(default ~ income + balance, data = training_set1, family = "binomial")
+validation_probs1 <- predict(training_model1, newdata = validation_set1, type = "response")
+validation_predictions1 <- ifelse(validation_probs1 > 0.5, "Yes", "No")
+validation_results1 <- data.frame(Actual = validation_set1$default, Predicted = validation_predictions1)
+validation_error1 <- mean(validation_results1$Actual != validation_results1$Predicted)
+index2 <- sample(1:n, size = 0.8 * n)  
+training_set2 <- Default[index2, ]
+validation_set2 <- Default[-index2, ]
+training_model2 <- glm(default ~ income + balance, data = training_set2, family = "binomial")
+validation_probs2 <- predict(training_model2, newdata = validation_set2, type = "response")
+validation_predictions2 <- ifelse(validation_probs2 > 0.5, "Yes", "No")
+validation_results2 <- data.frame(Actual = validation_set2$default, Predicted = validation_predictions2)
+validation_error2 <- mean(validation_results2$Actual != validation_results2$Predicted)
+index3 <- sample(1:n, size = 0.85 * n)  
+training_set3 <- Default[index3, ]
+validation_set3 <- Default[-index3, ]
+training_model3 <- glm(default ~ income + balance, data = training_set3, family = "binomial")
+validation_probs3 <- predict(training_model3, newdata = validation_set3, type = "response")
+validation_predictions3 <- ifelse(validation_probs3 > 0.5, "Yes", "No")
+validation_results3 <- data.frame(Actual = validation_set3$default, Predicted = validation_predictions3)
+validation_error3 <- mean(validation_results3$Actual != validation_results3$Predicted)
+
+validation_error1
+validation_error2
+validation_error3
 ```
 
 Your answer:
@@ -585,8 +620,15 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+set.seed(999)
+index3 <- sample(1:n, size = 0.7 * n)  
+training_set3 <- Default[index3, ]
+validation_set3 <- Default[-index3, ]
+training_model_with_student <- glm(default ~ income + balance + student, data = training_set, family = "binomial")
+validation_probs_with_student <- predict(training_model_with_student, newdata = validation_set, type = "response")
+validation_predictions_with_student <- ifelse(validation_probs_with_student > 0.5, "Yes", "No")
+validation_errors_with_student <- mean(validation_predictions_with_student != validation_set$default)
+validation_errors_with_student
 ```
 
 Your answer:
@@ -607,8 +649,9 @@ We continue to consider the use of a logistic regression model to predict the pr
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+set.seed(999)
+logisticmd <- glm(default ~ income + balance, data = Default, family = "binomial")
+summary(logisticmd)
 ```
 
 Your answer:
@@ -625,8 +668,11 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+boot.fn <- function(data, indices) {
+  subset_data <- data[indices, ]
+  model <- glm(default ~ income + balance, data = subset_data, family = "binomial")
+  return(coef(model))
+}
 ```
 
 Your answer:
@@ -643,8 +689,9 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+set.seed(999)
+boot_results <- boot(data = Default, statistic = boot.fn, R = 1000)
+boot_results
 ```
 
 Your answer:
@@ -663,7 +710,7 @@ Your answer:
 ~~~
 Please write your answer in full sentences.
 
-
+The standard deviation error obtained using bootstrap is smaller.
 ~~~
 
 
@@ -676,8 +723,8 @@ We will now consider the Boston housing data set, from the ISLR2 library.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+mu_hat <- mean(Boston$medv)
+mu_hat
 ```
 
 Your answer:
@@ -685,6 +732,7 @@ Your answer:
 ~~~
 Please write your answer in full sentences.
 
+Estimated population mean is about 22.53.
 
 ~~~
 
@@ -695,8 +743,10 @@ Hint: We can compute the standard error of the sample mean by dividing the sampl
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+s <- sd(Boston$medv)
+n <- length(Boston$medv)
+se <- s / sqrt(n)
+se
 ```
 
 Your answer:
@@ -704,7 +754,7 @@ Your answer:
 ~~~
 Please write your answer in full sentences.
 
-
+Estimated standard error is about 0.41.
 ~~~
 
 
@@ -713,8 +763,16 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+set.seed(999)
+boot_fn <- function(data, indices) {
+  subset_data <- data[indices, ]
+  mean_subset <- mean(subset_data$medv)
+  
+  return(mean_subset)
+}
+bootstrap_results <- boot(data = Boston, statistic = boot_fn, R = 1000)
+bootstrap_se <- sd(bootstrap_results$t)
+bootstrap_se
 ```
 
 Your answer:
@@ -731,8 +789,12 @@ Hint: You can approximate a 95% confidence interval using the formula $[\hat{\mu
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+lower_bound <- mu_hat - 2 * bootstrap_se
+upper_bound <- mu_hat + 2 * bootstrap_se
+cat("Bootstrap 95% Confidence Interval for mu_hat:", lower_bound, "-", upper_bound, "\n")
+t_test_results <- t.test(Boston$medv)
+ci_t_test <- t_test_results$conf.int
+ci_t_test
 ```
 
 Your answer:
@@ -749,8 +811,8 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+mu_med <- median(Boston$medv)
+mu_med
 ```
 
 Your answer:
@@ -767,8 +829,15 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+set.seed(999)
+boot_median_fn <- function(data, indices) {
+  subset_data <- data[indices, ]
+  median_subset <- median(subset_data$medv)
+  return(median_subset)
+}
+bootstrap_median_results <- boot(data = Boston, statistic = boot_median_fn, R = 1000)
+bootstrap_median_se <- sd(bootstrap_median_results$t)
+bootstrap_median_se
 ```
 
 Your answer:
@@ -786,8 +855,8 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+mu01_hat <- quantile(Boston$medv, 0.1)
+mu01_hat
 ```
 
 Your answer:
@@ -804,8 +873,15 @@ Please write your answer in full sentences.
 Your code:
 
 ```{r,echo=TRUE}
-#
-#
+set.seed(999)
+boot01_fn <- function(data, indices) {
+  subset_data <- data[indices, ]
+  quantile_subset <- quantile(subset_data$medv, 0.1)
+  return(quantile_subset)
+}
+bootstrap01_results <- boot(data = Boston, statistic = boot01_fn, R = 1000)
+bootstrap01_se <- sd(bootstrap01_results$t)
+bootstrap01_se
 ```
 
 Your answer:
